@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_javaio" default="compile.module.javaio">
+  <dirname property="module.javaio.basedir" file="${ant.file.module_javaio}"/>
+  
+  <property name="module.jdk.home.javaio" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.javaio" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.javaio" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.javaio" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="javaio.output.dir" value="${module.javaio.basedir}/out/production/JavaIO"/>
+  <property name="javaio.testoutput.dir" value="${module.javaio.basedir}/out/test/JavaIO"/>
+  
+  <path id="javaio.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="javaio.module.production.classpath">
+    <path refid="${module.jdk.classpath.javaio}"/>
+  </path>
+  
+  <path id="javaio.runtime.production.module.classpath">
+    <pathelement location="${javaio.output.dir}"/>
+  </path>
+  
+  <path id="javaio.module.classpath">
+    <path refid="${module.jdk.classpath.javaio}"/>
+    <pathelement location="${javaio.output.dir}"/>
+  </path>
+  
+  <path id="javaio.runtime.module.classpath">
+    <pathelement location="${javaio.testoutput.dir}"/>
+    <pathelement location="${javaio.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.javaio">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.javaio">
+    <patternset refid="excluded.from.module.javaio"/>
+  </patternset>
+  
+  <path id="javaio.module.sourcepath">
+    <dirset dir="${module.javaio.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.javaio" depends="compile.module.javaio.production,compile.module.javaio.tests" description="Compile module JavaIO"/>
+  
+  <target name="compile.module.javaio.production" depends="register.custom.compilers" description="Compile module JavaIO; production classes">
+    <mkdir dir="${javaio.output.dir}"/>
+    <javac2 destdir="${javaio.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.javaio}/javac">
+      <compilerarg line="${compiler.args.javaio}"/>
+      <bootclasspath refid="javaio.module.bootclasspath"/>
+      <classpath refid="javaio.module.production.classpath"/>
+      <src refid="javaio.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.javaio"/>
+    </javac2>
+    
+    <copy todir="${javaio.output.dir}">
+      <fileset dir="${module.javaio.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.javaio.tests" depends="register.custom.compilers,compile.module.javaio.production" description="compile module JavaIO; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.javaio" description="cleanup module">
+    <delete dir="${javaio.output.dir}"/>
+    <delete dir="${javaio.testoutput.dir}"/>
+  </target>
+</project>
